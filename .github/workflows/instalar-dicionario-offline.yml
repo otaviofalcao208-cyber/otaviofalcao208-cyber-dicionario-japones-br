@@ -1,0 +1,30 @@
+name: Instalar dicionario japones portugues offline
+on:
+  push:
+    paths:
+      - '.github/workflows/instalar-dicionario-offline.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  instalar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Baixar base JMdict-PT
+        run: |
+          curl --fail --location --retry 4 --retry-delay 3 --output jmdict-pt.jsonx 'https://github.com/zhusupbekova/jmdict-pt/releases/download/v2026.09.09-1/jmdict-pt.jsonx'
+          python3 - <<'PY'
+          import gzip,json
+          with gzip.open('jmdict-pt.jsonx','rt',encoding='utf-8') as f: data=json.load(f)
+          assert len(data['entries'])>200000, 'Base incompleta'
+          print('Entradas:',len(data['entries']))
+          PY
+      - name: Publicar base no site
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add jmdict-pt.jsonx
+          git diff --cached --quiet || (git commit -m 'Adicionar 218 mil entradas JMdict-PT offline' && git push)
