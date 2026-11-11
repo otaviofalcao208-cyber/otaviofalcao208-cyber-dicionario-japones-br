@@ -1,0 +1,11 @@
+{
+  "name": "Kotoba — Dicionário Japonês Português BR",
+  "short_name": "Kotoba JP-BR",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0b1322",
+  "theme_color": "#111c30",
+  "lang": "pt-BR",
+  "description": "Dicionário pessoal japonês-português com flashcards e modo escuro"
+}
