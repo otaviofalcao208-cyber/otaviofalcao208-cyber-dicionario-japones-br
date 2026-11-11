@@ -13,3 +13,13 @@ p{color:var(--muted);line-height:1.55}
 button{border-radius:11px}button:not(.secondary):not(.alt):not(.tile){background:var(--primary)}
 @media(max-width:850px){main,.shell{padding:20px 14px 60px}aside{padding:0}aside nav,nav.site-nav{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:3px;padding:5px;margin:12px 0 22px}aside nav button,nav.site-nav a{font-size:11px;padding:10px 2px;min-width:0}}
 @media(max-width:400px){.panel{padding:14px}}
+
+/* Navegação e cabeçalho idênticos na página de escrita */
+.practice-navigation{position:relative;max-width:1250px;margin:0 auto;padding:0;background:transparent;color:var(--ink);width:auto;height:auto}
+.practice-navigation nav.site-nav{margin:12px 28px 0}
+.practice-shell{max-width:1250px;margin:0 auto;padding:22px 28px 80px}
+.practice-shell .top{display:flex;align-items:center;justify-content:space-between;gap:15px}
+.practice-shell .eyebrow{font-size:12px;letter-spacing:.1em;font-weight:800;color:var(--primary)}
+.practice-shell .top h1{margin:8px 0}
+.practice-shell #theme{white-space:nowrap}
+@media(max-width:850px){.practice-navigation nav.site-nav{margin:12px 8px 0}.practice-shell{padding:20px 14px 60px}}
