@@ -1,0 +1,49 @@
+name: Publicar JMdict-PT somente leitura unica
+on:
+  push:
+    paths:
+      - '.github/workflows/gerar-jmdict-leitura-unica.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Baixar e filtrar entradas com uma leitura
+        run: |
+          curl --fail --location --retry 4 --retry-delay 3 -o /tmp/jmdict-pt.jsonx 'https://github.com/zhusupbekova/jmdict-pt/releases/download/v2026.09.09-1/jmdict-pt.jsonx'
+          python3 - <<'PY'
+          import gzip,json
+          with gzip.open('/tmp/jmdict-pt.jsonx','rt',encoding='utf-8') as f: entries=json.load(f)['entries']
+          output=[]; seen=set()
+          for e in entries:
+              readings=[x.strip() for x in e.get('r',[]) if isinstance(x,str) and x.strip()]
+              if len(readings)!=1: continue
+              kanji=[x.strip() for x in e.get('k',[]) if isinstance(x,str) and x.strip()]
+              meanings=[g.strip() for s in e.get('s',[]) for g in s.get('g',[]) if isinstance(g,str) and g.strip()]
+              if not meanings: continue
+              jp=kanji[0] if kanji else readings[0]
+              key=(jp,readings[0])
+              if key in seen: continue
+              seen.add(key)
+              output.append({'jp':jp,'kana':readings[0],'pt':' / '.join(dict.fromkeys(meanings[:4]))[:260]})
+          assert len(output)>10000, f'Base insuficiente: {len(output)}'
+          with open('jmdict-leitura-unica.json','w',encoding='utf-8') as f: json.dump(output,f,ensure_ascii=False,separators=(',',':'))
+          print('Entradas com uma unica leitura:',len(output))
+          PY
+      - name: Publicar base no site
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add jmdict-leitura-unica.json
+          git diff --cached --quiet || git commit -m 'Publicar JMdict-PT filtrado para leitura unica'
+          for tentativa in 1 2 3 4 5; do
+            git pull --rebase origin main
+            if git push origin HEAD:main; then exit 0; fi
+            sleep 5
+          done
+          exit 1
