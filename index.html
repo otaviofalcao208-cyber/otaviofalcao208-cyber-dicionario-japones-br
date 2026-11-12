@@ -17,6 +17,33 @@ const extraSeed=[{"jp":"天気","kana":"てんき","romaji":"tenki","pt":"tempo 
 const $=id=>document.getElementById(id);let words;try{words=JSON.parse(localStorage.getItem("kotoba_words_v7"))||seed;if(!Array.isArray(words))words=seed}catch{words=seed}const expansionKey="kotoba_words_expansion_2026_11";if(!localStorage.getItem(expansionKey)){const known=new Set(words.map(w=>w.jp+"|"+w.kana));let added=0;for(const w of expandedSeed){const key=w.jp+"|"+w.kana;if(!known.has(key)){words.push(w);known.add(key);added++}}try{localStorage.setItem("kotoba_words_v7",JSON.stringify(words));localStorage.setItem(expansionKey,"1")}catch(e){console.warn("Não foi possível salvar as novas palavras",e)}}
 const advancedKey="kotoba_words_advanced_2026_11";if(!localStorage.getItem(advancedKey)){const known=new Set(words.map(w=>w.jp+"|"+w.kana));for(const w of advancedSeed){const key=w.jp+"|"+w.kana;if(!known.has(key)){words.push(w);known.add(key)}}try{localStorage.setItem("kotoba_words_v7",JSON.stringify(words));localStorage.setItem(advancedKey,"1")}catch(e){console.warn("Erro ao salvar vocabulário",e)}}
 const extraKey="kotoba_words_extra_2026_11";if(!localStorage.getItem(extraKey)){const known=new Set(words.map(w=>w.jp+"|"+w.kana));for(const w of extraSeed){const key=w.jp+"|"+w.kana;if(!known.has(key)){words.push(w);known.add(key)}}try{localStorage.setItem("kotoba_words_v7",JSON.stringify(words));localStorage.setItem(extraKey,"1")}catch(e){console.warn("Erro ao salvar palavras adicionais",e)}}
+
+async function adicionarDezMilPalavras(){
+  const key="kotoba_10mil_jmdict_pt_v1";
+  if(localStorage.getItem(key)==="ok")return;
+  try{
+    const response=await fetch("./palavras-10mil.json",{cache:"no-store"});
+    if(!response.ok)return;
+    const candidates=await response.json();
+    if(!Array.isArray(candidates)||candidates.length<10000)return;
+    const known=new Set(words.map(w=>w.jp+"|"+w.kana));
+    const newWords=[];
+    for(const w of candidates){
+      if(!w||typeof w.jp!=="string"||typeof w.kana!=="string"||typeof w.pt!=="string"||!w.pt.trim())continue;
+      const id=w.jp+"|"+w.kana;
+      if(known.has(id))continue;
+      known.add(id);
+      newWords.push({jp:w.jp,kana:w.kana,romaji:w.romaji||"",pt:w.pt,category:w.category||"Dicionário ampliado",level:w.level||"Sem nível",id:"jmdict10k_"+newWords.length,fav:false});
+      if(newWords.length===10000)break;
+    }
+    if(newWords.length<10000){console.warn("A base contém menos de 10 mil palavras novas:",newWords.length);return}
+    const updated=words.concat(newWords);
+    localStorage.setItem("kotoba_words_v7",JSON.stringify(updated));
+    localStorage.setItem(key,"ok");
+    words=updated;
+    render();
+  }catch(e){console.warn("Não foi possível instalar as 10 mil palavras:",e)}
+}
 let current=0,reversed=false,studyWords=[];
 const escapeHtml=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const FULL_DICT_URL=new URL("./jmdict-pt.jsonx",location.href).href;
@@ -46,5 +73,5 @@ function renderFlash(){studyWords=words.filter(w=>!$("studyLevel").value||w.leve
 $("studyLevel").onchange=()=>{current=0;renderFlash()};$("reveal").onclick=()=>$("back").classList.remove("hidden");$("next").onclick=()=>{current++;renderFlash()};$("reverse").onclick=()=>{reversed=!reversed;$("reverse").textContent=reversed?"BR → JP":"JP → BR";renderFlash()};$("speakStudy").onclick=()=>{if(studyWords[current])speak(studyWords[current].jp)};
 $("export").onclick=()=>{const blob=new Blob([JSON.stringify(words,null,2)],{type:"application/json"});const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="kotoba-backup.json";a.click();setTimeout(()=>URL.revokeObjectURL(url),2000)};
 $("import").onclick=()=>$("file").click();$("file").onchange=async e=>{try{const data=JSON.parse(await e.target.files[0].text());if(!Array.isArray(data)||!data.every(w=>typeof w.jp==="string"&&typeof w.pt==="string"&&w.jp&&w.pt))throw Error();if(confirm("Substituir todo o dicionário pelo backup?")){words=data.map((w,i)=>({...w,id:"imp"+Date.now()+"_"+i,fav:!!w.fav}));persist()}}catch{alert("Backup JSON inválido.")}e.target.value=""};
-function setTheme(t){document.documentElement.dataset.theme=t;localStorage.setItem("kotoba_theme",t);$("theme").textContent=t==="dark"?"☀️ Claro":"🌙 Escuro"}$("theme").onclick=()=>setTheme(document.documentElement.dataset.theme==="dark"?"light":"dark");setTheme(localStorage.getItem("kotoba_theme")||(matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light"));render();if("serviceWorker"in navigator&&location.protocol==="https:")navigator.serviceWorker.register("./sw.js?v=31").catch(()=>{});
+function setTheme(t){document.documentElement.dataset.theme=t;localStorage.setItem("kotoba_theme",t);$("theme").textContent=t==="dark"?"☀️ Claro":"🌙 Escuro"}$("theme").onclick=()=>setTheme(document.documentElement.dataset.theme==="dark"?"light":"dark");setTheme(localStorage.getItem("kotoba_theme")||(matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light"));render();adicionarDezMilPalavras();if("serviceWorker"in navigator&&location.protocol==="https:")navigator.serviceWorker.register("./sw.js?v=31").catch(()=>{});
 </script><div id="offlineStatus" role="status" style="position:fixed;bottom:12px;right:12px;z-index:9999;background:#123b2a;color:white;border-radius:12px;padding:8px 12px;font:600 12px system-ui;box-shadow:0 2px 10px #0003">Preparando modo offline…</div><script>(async()=>{const el=document.getElementById("offlineStatus");const update=()=>{el.textContent=navigator.onLine?"Verificando arquivos offline…":"📴 Sem internet";};window.addEventListener("offline",update);window.addEventListener("online",update);try{if(!("serviceWorker" in navigator)){el.textContent="Offline indisponível neste navegador";return}await navigator.serviceWorker.register("./sw.js");await navigator.serviceWorker.ready;const cache=await caches.open("kotoba-offline-v31");const names=["./index.html","./pratica.html","./tracos.js"];const present=await Promise.all(names.map(name=>cache.match(name)));el.textContent=present.every(Boolean)?"✓ Pronto para usar offline":"Aguardando arquivos offline: atualize a página";if(!navigator.onLine)el.textContent=present.every(Boolean)?"✓ Modo offline ativo":"Sem internet e cache incompleto"}catch(e){el.textContent="Offline indisponível: "+e.message}})();</script></body></html>
