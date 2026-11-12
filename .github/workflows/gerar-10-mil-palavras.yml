@@ -1,0 +1,44 @@
+name: Gerar 10 mil palavras japones portugues
+on:
+  push:
+    paths:
+      - '.github/workflows/gerar-10-mil-palavras.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  gerar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Baixar JMdict-PT e gerar palavras com traducao
+        run: |
+          curl --fail --location --retry 4 --retry-delay 3 --output /tmp/jmdict-pt.jsonx 'https://github.com/zhusupbekova/jmdict-pt/releases/download/v2026.09.09-1/jmdict-pt.jsonx'
+          python3 - <<'PY'
+          import gzip,json
+          with gzip.open('/tmp/jmdict-pt.jsonx','rt',encoding='utf-8') as f: entries=json.load(f)['entries']
+          result=[]
+          seen=set()
+          for e in entries:
+              jp=next((x for x in e.get('k',[]) if isinstance(x,str) and x.strip()),None)
+              kana=next((x for x in e.get('r',[]) if isinstance(x,str) and x.strip()),None)
+              meanings=[g.strip() for s in e.get('s',[]) for g in s.get('g',[]) if isinstance(g,str) and g.strip()]
+              if not kana or not meanings: continue
+              jp=jp or kana
+              key=(jp,kana)
+              if key in seen: continue
+              seen.add(key)
+              result.append({'jp':jp,'kana':kana,'romaji':'','pt':' / '.join(meanings[:3])[:220],'category':'Dicionário ampliado','level':'Sem nível'})
+              if len(result)>=12000: break
+          assert len(result)>=10000, f'Encontradas somente {len(result)} entradas validas'
+          with open('palavras-10mil.json','w',encoding='utf-8') as f: json.dump(result,f,ensure_ascii=False,separators=(',',':'))
+          print('Entradas validas geradas:',len(result))
+          PY
+      - name: Publicar palavras no GitHub Pages
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add palavras-10mil.json
+          git diff --cached --quiet || (git commit -m 'Adicionar base de 12 mil candidatas para 10 mil novas palavras' && git push)
