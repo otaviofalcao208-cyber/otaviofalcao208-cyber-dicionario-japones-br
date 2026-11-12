@@ -1,0 +1,37 @@
+name: Gerar modelos offline dos 2136 kanji jōyō
+on:
+  push:
+    paths:
+      - "gerar-tracos-joyo.py"
+      - "joyo-kanji.txt"
+      - ".github/workflows/gerar-tracos-joyo.yml"
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  gerar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Baixar dados KanjiVG
+        run: git clone --depth 1 https://github.com/KanjiVG/kanjivg.git /tmp/kanjivg
+      - name: Gerar modelos locais
+        run: python3 gerar-tracos-joyo.py /tmp/kanjivg
+      - name: Atualizar versão offline
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path("sw.js")
+          text=p.read_text()
+          import re
+          text=re.sub(r'kotoba-offline-v\d+', 'kotoba-offline-v36', text)
+          p.write_text(text)
+          PY
+      - name: Commitar modelos
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tracos.js sw.js
+          git diff --cached --quiet || (git commit -m "Incluir modelos offline dos 2136 kanji jōyō" && git push)
