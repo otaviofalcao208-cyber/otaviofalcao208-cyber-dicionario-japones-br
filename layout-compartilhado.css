@@ -31,3 +31,9 @@ nav .kotoba-icon{width:18px;height:18px;flex-basis:18px}
 .dictionary-subnav button .kotoba-icon{width:21px;height:21px;flex-basis:21px}
 .kotoba-icon-button:focus-visible{outline:2px solid var(--primary,var(--accent,#4564d9));outline-offset:3px}
 @media(max-width:540px){nav .kotoba-icon-button{gap:4px;flex-direction:column;line-height:1.25}nav .kotoba-icon{width:20px;height:20px;flex-basis:20px}}
+
+.kotoba-brand-footer{max-width:1250px;margin:8px auto 24px;padding:16px 28px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:12px}
+.kotoba-brand-footer a{color:var(--ink);font-weight:650;text-decoration:none;display:inline-flex;align-items:center;gap:7px}
+.kotoba-brand-footer a:hover{text-decoration:underline}
+.kotoba-brand-footer .kotoba-icon{width:21px;height:21px;flex-basis:21px}
+@media(max-width:540px){.kotoba-brand-footer{padding:16px}}
