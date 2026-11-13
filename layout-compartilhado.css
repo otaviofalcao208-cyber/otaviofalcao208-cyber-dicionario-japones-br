@@ -50,3 +50,14 @@ nav .kotoba-icon{width:18px;height:18px;flex-basis:18px}
 .practice-shell .panel{box-shadow:0 10px 30px rgba(26,49,90,.055)}
 @media(max-width:790px){.practice-shell .layout{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:540px){.practice-shell .top{align-items:flex-start}.practice-shell .tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;padding:6px}.practice-shell .tabs button{padding:10px 4px;font-size:13px}}
+
+/* Menu da escrita agora usa os mesmos botões e cartões do dicionário */
+.practice-navigation nav.site-nav button{display:inline-flex;align-items:center;justify-content:center;flex:1;gap:7px;text-align:center;border:0;border-radius:12px;background:var(--soft);color:var(--ink);font:650 14px Inter,system-ui,sans-serif;padding:13px 12px;cursor:pointer}
+.practice-navigation nav.site-nav button.active{background:var(--primary);color:#fff;box-shadow:0 4px 14px rgba(49,91,214,.22)}
+.practice-dashboard{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:0 0 28px}
+.practice-stat{background:var(--card);border:1px solid var(--line);border-radius:17px;padding:19px 22px;box-shadow:var(--shadow,0 10px 30px rgba(26,49,90,.055))}
+.practice-stat strong{display:block;font-size:clamp(23px,3vw,32px);line-height:1.2;color:var(--ink)}
+.practice-stat small{display:block;margin-top:5px;font-size:12px;font-weight:650;color:var(--muted)}
+.visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@media(max-width:850px){.practice-navigation nav.site-nav button{min-width:0;white-space:normal;font-size:11px;padding:12px 3px;flex-direction:column;gap:4px}}
+@media(max-width:560px){.practice-dashboard{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.practice-stat{padding:12px 9px}.practice-stat strong{font-size:clamp(17px,4vw,24px)}.practice-stat small{font-size:10px}}
