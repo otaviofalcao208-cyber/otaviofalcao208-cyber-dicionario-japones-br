@@ -295,7 +295,7 @@ function drawSearchHistory(){
  });
 }
 function rememberSearch(value){
- const term=value.trim().replace(/\\s+/g," ").slice(0,100);
+ const term=value.trim().replace(/\s+/g," ").slice(0,100);
  if(!term)return;
  searchHistory=[term,...searchHistory.filter(x=>x.toLocaleLowerCase()!==term.toLocaleLowerCase())].slice(0,30);
  try{localStorage.setItem(searchHistoryKey,JSON.stringify(searchHistory))}catch{}
