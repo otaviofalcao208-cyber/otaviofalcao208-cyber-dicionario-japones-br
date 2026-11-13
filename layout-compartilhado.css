@@ -23,3 +23,11 @@ button{border-radius:11px}button:not(.secondary):not(.alt):not(.tile){background
 .practice-shell .top h1{margin:8px 0}
 .practice-shell #theme{white-space:nowrap}
 @media(max-width:850px){.practice-navigation nav.site-nav{margin:12px 8px 0}.practice-shell{padding:20px 14px 60px}}
+
+/* Ícones Kotoba: SVG leves, alinhados e acessíveis */
+.kotoba-icon-button{display:inline-flex!important;align-items:center;justify-content:center;gap:7px;vertical-align:middle}
+.kotoba-icon{width:19px;height:19px;flex:0 0 19px;display:inline-block;pointer-events:none}
+nav .kotoba-icon{width:18px;height:18px;flex-basis:18px}
+.dictionary-subnav button .kotoba-icon{width:21px;height:21px;flex-basis:21px}
+.kotoba-icon-button:focus-visible{outline:2px solid var(--primary,var(--accent,#4564d9));outline-offset:3px}
+@media(max-width:540px){nav .kotoba-icon-button{gap:4px;flex-direction:column;line-height:1.25}nav .kotoba-icon{width:20px;height:20px;flex-basis:20px}}
