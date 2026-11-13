@@ -37,3 +37,16 @@ nav .kotoba-icon{width:18px;height:18px;flex-basis:18px}
 .kotoba-brand-footer a:hover{text-decoration:underline}
 .kotoba-brand-footer .kotoba-icon{width:21px;height:21px;flex-basis:21px}
 @media(max-width:540px){.kotoba-brand-footer{padding:16px}}
+
+/* Escrita integrada ao mesmo layout do Dicionário/Estudar/Conta/Backup */
+.practice-shell .top{margin-bottom:24px}
+.practice-shell .top p{margin:8px 0 0}
+.practice-shell .practice-section-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 10px}
+.practice-shell .practice-section-heading h2{font-size:clamp(22px,3vw,29px);letter-spacing:-.035em;margin:6px 0}
+.practice-shell .intro{margin:0 0 18px}
+.practice-shell .tabs{background:var(--card);border:1px solid var(--line);padding:10px;border-radius:14px;margin-bottom:12px}
+.practice-shell .tabs button{border-radius:10px;min-height:42px}
+.practice-shell .layout{margin-top:18px}
+.practice-shell .panel{box-shadow:0 10px 30px rgba(26,49,90,.055)}
+@media(max-width:790px){.practice-shell .layout{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:540px){.practice-shell .top{align-items:flex-start}.practice-shell .tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;padding:6px}.practice-shell .tabs button{padding:10px 4px;font-size:13px}}
