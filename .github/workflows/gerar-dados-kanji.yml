@@ -1,0 +1,31 @@
+name: Gerar dicionário offline dos 2136 Jōyō Kanji
+on:
+  push:
+    paths:
+      - "gerar-dados-kanji.py"
+      - "joyo-kanji.txt"
+      - ".github/workflows/gerar-dados-kanji.yml"
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  gerar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Instalar tradutor offline
+        run: pip install argostranslate
+      - name: Gerar dados completos em português
+        run: python gerar-dados-kanji.py
+      - name: Publicar arquivo local para o site
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add kanji-dados.js
+          git diff --cached --quiet || (git commit -m "Publicar leituras e traduções offline dos 2136 kanjis" && git push)
