@@ -628,7 +628,7 @@ function renderSingleReadingResults(){
     }
   }
   $("singleReadingStatus").textContent=matches.length+" resultado(s) da base ampliada (até 60 por pesquisa).";
-  host.innerHTML=matches.map(({w,existing})=>'<article class="entry"><button type="button" class="star-favorite" data-single-fav="1" data-jp="'+escapeHtml(w.jp)+'" data-kana="'+escapeHtml(w.kana)+'" aria-label="'+(existing?.fav?'Remover dos favoritos':'Adicionar aos favoritos')+'" aria-pressed="'+!!existing?.fav+'">'+(existing?.fav?'★':'☆')+'</button><h3 class="kotoba-word-furigana">'+kotobaFurigana(w.jp,w.kana)+'</h3><div class="reading kotoba-romaji">'+escapeHtml(w.romaji||'')+'</div><div class="meaning">'+escapeHtml(w.pt)+'</div><span class="tag">JMdict-PT · leitura única</span></article>').join("");
+  host.innerHTML=matches.map(({w,existing})=>'<article class="entry"><button type="button" class="star-favorite" data-single-fav="1" data-jp="'+escapeHtml(w.jp)+'" data-kana="'+escapeHtml(w.kana)+'" aria-label="'+(existing?.fav?'Remover dos favoritos':'Adicionar aos favoritos')+'" aria-pressed="'+!!existing?.fav+'">'+(existing?.fav?'★':'☆')+'</button><h3 class="kotoba-word-furigana">'+kotobaFurigana(w.jp,w.kana)+'</h3><div class="meaning">'+escapeHtml(w.pt)+'</div><span class="tag">JMdict-PT · leitura única</span></article>').join("");
 }
 $("singleReadingResults").addEventListener("click",e=>{
   const b=e.target.closest("button[data-single-fav]");if(!b)return;
