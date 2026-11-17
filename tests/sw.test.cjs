@@ -4,7 +4,7 @@ const vm = require('node:vm');
 const sw = fs.readFileSync('sw.js', 'utf8');
 new vm.Script(sw, {filename:'sw.js'});
 const events = {};
-const self = {addEventListener(name, callback) {events[name]=callback;}, skipWaiting:async()=>{},clients:{claim:async()=>{}}};
+const self = {location:{origin:'https://example.com'},addEventListener(name, callback) {events[name]=callback;}, skipWaiting:async()=>{},clients:{claim:async()=>{}}};
 const cacheData = new Map();
 const cache = {
  async put(key,response){cacheData.set(String(key.url||key),response.clone());},
