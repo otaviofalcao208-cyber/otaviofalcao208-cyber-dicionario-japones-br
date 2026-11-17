@@ -1,0 +1,16 @@
+name: Kotoba v200 - diagnostico de carregamento
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/diagnostico-v200.yml
+    branches:
+      - teste/kotoba-v200-desempenho
+permissions:
+  contents: read
+jobs:
+  diagnostico:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python tests/inspect_loading.py
