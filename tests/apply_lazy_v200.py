@@ -5,11 +5,11 @@ index=Path("index.html")
 html=index.read_text(encoding="utf-8")
 if "kotobaLoadWordsV200" in html:
     raise SystemExit("Ja aplicado; nao repetir")
-scripts=list(re.finditer(r'<script(?:\\s[^>]*)?>(.*?)</script>',html,re.I|re.S))
-assert len(scripts)==19, f"Quantidade inesperada de scripts inline: {len(scripts)}"
+scripts=list(re.finditer(r'<script[^>]*>(.*?)</script>',html,re.I|re.S))
+assert len(scripts)==20, f"Quantidade inesperada de scripts inline: {len(scripts)}"
 # Os blocos finais contêm acréscimos de palavras e ajustes associados.
 # Mantê-los juntos preserva a ordem original de execução.
-chosen=scripts[3:] # scripts inline 0..2 permanecem; scripts 3..18 migram
+chosen=scripts[4:] # preservar os quatro primeiros scripts; migrar os 16 seguintes
 assert len(chosen)==16
 payload="\n".join(m.group(1) for m in chosen)
 assert len(payload)>250000, "Dados extraidos inesperadamente pequenos"
