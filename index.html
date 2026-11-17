@@ -16,6 +16,9 @@ article .actions:has(button[data-action="speak"]):has(button[data-action="edit"]
 
 /* Total de palavras ao lado da busca, sem bloco no cabeçalho. */
 .kotoba-search-and-total{display:flex;align-items:stretch;gap:9px;width:100%;min-width:0}.kotoba-search-with-results .kotoba-search-and-total #search{flex:1 1 auto;min-width:0;width:1px!important;padding-right:12px!important}.kotoba-total-pill{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:82px;padding:4px 10px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink)}.kotoba-total-pill strong{font-size:20px;line-height:1.15;font-weight:800;font-variant-numeric:tabular-nums}.kotoba-total-pill small{font-size:10px;color:var(--muted)}@media(max-width:420px){.kotoba-total-pill{min-width:70px;padding:4px 6px}.kotoba-total-pill strong{font-size:17px}}.kotoba-search-with-results>.kotoba-search-result-badge{display:none!important}
+
+/* Cabeçalho sem cartão: remover fundo, borda, sombra e cantos arredondados. */
+.shell > .top{background:transparent!important;background-image:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;padding:0!important;margin-bottom:18px!important}
 </style><link rel="stylesheet" href="./layout-compartilhado.css?v=101"><style>
 /* Kotoba — visual renovado: hierarquia clara, cartões e busca responsiva */
 :root{--bg:#f6f8fc;--card:#ffffff;--ink:#19263b;--muted:#617188;--line:#e4eaf3;--primary:#315bd6;--soft:#edf2ff;--shadow:0 10px 30px rgba(26,49,90,.055)}
