@@ -1,0 +1,40 @@
+name: Kotoba v200 - aplicar carregamento sob demanda
+on:
+  push:
+    branches:
+      - teste/kotoba-v200-desempenho
+    paths:
+      - .github/workflows/aplicar-lazy-v200.yml
+      - tests/apply_lazy_v200.py
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  aplicar:
+    if: github.ref == 'refs/heads/teste/kotoba-v200-desempenho'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Separar palavras e limitar cartoes
+        run: python tests/apply_lazy_v200.py
+      - name: Verificar integridade
+        run: |
+          test -s palavras-extras-v200.js
+          python - <<'PY'
+          from pathlib import Path
+          s=Path("index.html").read_text()
+          assert 'kotobaLoadWordsV200' in s
+          assert 'list.slice(0,window.kotobaVisibleLimitV200||80)' in s
+          assert 'Mostrar mais palavras' in s
+          print("Estrutura da v200 verificada")
+          PY
+      - name: Salvar somente na branch de teste
+        run: |
+          test "$(git branch --show-current)" = "teste/kotoba-v200-desempenho"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html palavras-extras-v200.js
+          git commit -m "Kotoba v200: separar dados e paginar resultados" 
+          git push origin HEAD:teste/kotoba-v200-desempenho
