@@ -33,7 +33,7 @@ self.addEventListener("activate", event => {
 function addWordScripts(html) {
   if (!html.includes("</body>")) return html;
   const missing = WORD_SCRIPTS.filter(version =>
-    !new RegExp("palavras-v" + version + "\\.js(?:[?\\\"'])").test(html)
+    !html.includes("palavras-v" + version + ".js")
   );
   if (!missing.length) return html;
   const tags = missing.map(version =>
