@@ -2,6 +2,7 @@
 const CACHE = "kotoba-offline-v200-test";
 const CORE = [
   "./index.html", "./pratica.html", "./layout-compartilhado.css",
+  "./kanji-dados.js", "./tracos.js",
   "./manifest.webmanifest", "./icones.js",
   "./palavras-v196.js", "./palavras-v197.js",
   "./palavras-v198.js", "./palavras-v199.js"
@@ -11,7 +12,7 @@ const WORD_SCRIPTS = [196, 197, 198, 199];
 self.addEventListener("install", event => {
   event.waitUntil((async () => {
     const cache = await caches.open(CACHE);
-    // Não bloquear a instalação baixando tracos.js (~2 MB).
+    // Preservar os recursos essenciais para o modo offline.
     await Promise.allSettled(CORE.map(async path => {
       const response = await fetch(new Request(path, {cache: "reload"}));
       if (response.ok) await cache.put(path, response);
