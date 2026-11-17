@@ -822,7 +822,7 @@ function persist(){localStorage.setItem("kotoba_words_v7",JSON.stringify(words))
 function speak(s){if(!("speechSynthesis"in window))return alert("Áudio não disponível neste navegador.");speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(s);u.lang="ja-JP";speechSynthesis.speak(u)}
 const jpCollator=new Intl.Collator("ja",{sensitivity:"base",numeric:true});const ptCollator=new Intl.Collator("pt-BR",{sensitivity:"base",numeric:true});const sortJapanese=(a,b)=>jpCollator.compare(a.kana||a.jp||"",b.kana||b.jp||"")||jpCollator.compare(a.jp||"",b.jp||"");const sortPortuguese=(a,b)=>ptCollator.compare(a.pt||"",b.pt||"")||sortJapanese(a,b);
 let dictionaryTab="all";
-document.querySelectorAll("[data-dict-tab]").forEach(btn=>btn.addEventListener("click",()=>{dictionaryTab=btn.dataset.dictTab;document.querySelectorAll("[data-dict-tab]").forEach(tab=>{const selected=tab===btn;tab.classList.toggle("active",selected);tab.setAttribute("aria-selected",String(selected))});$("onlyFav").value=dictionaryTab==="favorites"?"yes":"";render()}));
+document.querySelectorAll("[data-dict-tab]").forEach(btn=>btn.addEventListener("click",()=>{dictionaryTab=btn.dataset.dictTab==="favorites"&&dictionaryTab==="favorites"?"all":btn.dataset.dictTab;document.querySelectorAll("[data-dict-tab]").forEach(tab=>{const selected=tab.dataset.dictTab===dictionaryTab;tab.classList.toggle("active",selected);tab.setAttribute("aria-selected",String(selected))});$("onlyFav").value=dictionaryTab==="favorites"?"yes":"";render()}));
 /* v163: preencher leituras verificáveis, sem inventar leitura de kanji desconhecido. */
 const kotobaExampleReadingOverrides={
 "このお茶は後味がさっぱりしています。":"このおちゃはあとあじがさっぱりしています。",
