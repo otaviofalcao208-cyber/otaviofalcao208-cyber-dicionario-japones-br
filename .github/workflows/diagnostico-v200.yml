@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - .github/workflows/diagnostico-v200.yml
+      - tests/inspect_loading.py
     branches:
       - teste/kotoba-v200-desempenho
 permissions:
