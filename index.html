@@ -1081,7 +1081,7 @@ function setTheme(t){document.documentElement.dataset.theme=t;localStorage.setIt
     if(loading)return loading;
     loading=new Promise(function(resolve,reject){
       const script=document.createElement("script");
-      script.src="./palavras-extras-v200.js?v=200";
+      script.src="./palavras-extras-v200.js?v=213-20261117";
       script.onload=function(){window.kotobaWordsLoadedV200=true;resolve(true)};
       script.onerror=function(){loading=null;reject(new Error("Falha ao carregar palavras extras"))};
       document.body.appendChild(script);
