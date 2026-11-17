@@ -20,11 +20,11 @@ async def main():
     ready_ms=round((time.monotonic()-start)*1000)
     cards=await page.locator("#entries article.entry").count()
     count=await page.locator("#count").inner_text()
-    assert cards<=80,(device,"too many cards",cards)
+    assert cards<=10,(device,"too many cards",cards)
     assert await page.locator("#kotobaMoreV200").count()==1,(device,"missing more")
     await page.locator("#kotobaMoreV200").click(timeout=15000)
     more=await page.locator("#entries article.entry").count()
-    assert 80<more<=160,(device,"load more failed",more)
+    assert 10<more<=20,(device,"load more failed",more)
     # O campo de busca deve reduzir os resultados visíveis.
     if not await page.locator("#search").is_visible():
      await page.locator("#searchToggle").click(timeout=15000)
@@ -33,7 +33,7 @@ async def main():
     filtered=await page.locator("#entries article.entry").count()
     resultcount=await page.locator("#resultcount").inner_text()
     # Busca pode retornar 0 ou mais, mas não pode exceder 160 cartões.
-    assert filtered<=160
+    assert filtered<=20
     await page.locator("#search").fill("",timeout=15000)
     await page.wait_for_timeout(500)
     fav=page.locator("#entries button.star-favorite").first
