@@ -5,6 +5,7 @@ on:
       - teste/kotoba-v200-desempenho
     paths:
       - .github/workflows/aplicar-lazy-v200.yml
+      - tests/apply_lazy_v200.py
   workflow_dispatch:
 permissions:
   contents: write
