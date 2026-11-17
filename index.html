@@ -1092,13 +1092,45 @@ function setTheme(t){document.documentElement.dataset.theme=t;localStorage.setIt
       return promise.then(function(){
         return new Promise(function(resolve,reject){
           const script=document.createElement("script");
-          script.src="./"+file+"?v=3371-20261117-v209";
+          script.src="./"+file+"?v=3371-20261117-jlpt-review";
           script.onload=resolve;
           script.onerror=function(){reject(new Error("Falha ao carregar "+file))};
           document.body.appendChild(script);
         });
       });
-    },Promise.resolve()).then(function(){
+    },Promise.resolve()).then(async function(){
+      // Revisao conservadora: niveis apenas por correspondencia exata de grafia + leitura.
+      // A lista e comunitaria; palavras ausentes ou ambiguas permanecem sem nivel.
+      try{
+        const response=await fetch("./jlpt-niveis-v111.json?v=review-20261117",{cache:"no-store"});
+        if(response.ok){
+          const lists=await response.json(),levels=new Map(),conflicts=new Set();
+          for(const level of ["N5","N4","N3","N2","N1"]){
+            for(const pair of lists[level]||[]){
+              const key=String(pair[0]||"").normalize("NFKC")+"|"+String(pair[1]||"").normalize("NFKC");
+              if(levels.has(key)&&levels.get(key)!==level)conflicts.add(key);
+              else levels.set(key,level);
+            }
+          }
+          let updated=0;
+          for(const w of words){
+            if(!w||!w.jp||!w.kana)continue;
+            const key=String(w.jp).normalize("NFKC")+"|"+String(w.kana).normalize("NFKC");
+            const exact=!conflicts.has(key)?levels.get(key):null;
+            // Corrige niveis em branco e niveis anteriormente estimados;
+            // preserva classificacoes preexistentes que nao foram estimadas.
+            if(exact&&(w.level==="Sem nível"||!w.level||w.jlptEstimated)){
+              if(w.level!==exact||w.jlptEstimated){w.level=exact;delete w.jlptEstimated;updated++}
+            }else if(!exact&&w.jlptEstimated){
+              w.level="Sem nível";delete w.jlptEstimated;updated++;
+            }
+          }
+          if(updated)try{localStorage.setItem("kotoba_words_v7",JSON.stringify(words))}catch(e){}
+          console.info("Kotoba: "+updated+" classificacoes JLPT revisadas por correspondencia exata.");
+        }
+      }catch(e){console.warn("Revisao JLPT indisponivel",e)}
+      // Frases sem leitura: inferir somente quando o dicionario oferece correspondencia.
+      try{if(typeof kotobaRepairEntries==="function")kotobaRepairEntries()}catch(e){console.warn("Revisao de leituras",e)}
       window.kotobaWordsLoadedV200=true;
       if(typeof render==="function")render();
       return true;
