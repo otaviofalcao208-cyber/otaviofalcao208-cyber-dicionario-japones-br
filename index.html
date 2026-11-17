@@ -1079,13 +1079,30 @@ function setTheme(t){document.documentElement.dataset.theme=t;localStorage.setIt
   let loading;
   window.kotobaLoadWordsV200=function(){
     if(loading)return loading;
-    loading=new Promise(function(resolve,reject){
-      const script=document.createElement("script");
-      script.src="./palavras-extras-v200.js?v=3170-20261117";
-      script.onload=function(){window.kotobaWordsLoadedV200=true;resolve(true)};
-      script.onerror=function(){loading=null;reject(new Error("Falha ao carregar palavras extras"))};
-      document.body.appendChild(script);
-    });
+    // Carrega todos os lotes do catalogo, em ordem, antes de marcar como concluido.
+    // Os scripts ja evitam duplicatas por grafia japonesa e preservam entradas locais.
+    const files=[
+      "palavras-v196.js",
+      "palavras-v197.js",
+      "palavras-v198.js",
+      "palavras-v199.js",
+      "palavras-extras-v200.js"
+    ];
+    loading=files.reduce(function(promise,file){
+      return promise.then(function(){
+        return new Promise(function(resolve,reject){
+          const script=document.createElement("script");
+          script.src="./"+file+"?v=3170-20261117-fix1";
+          script.onload=resolve;
+          script.onerror=function(){reject(new Error("Falha ao carregar "+file))};
+          document.body.appendChild(script);
+        });
+      });
+    },Promise.resolve()).then(function(){
+      window.kotobaWordsLoadedV200=true;
+      if(typeof render==="function")render();
+      return true;
+    }).catch(function(error){loading=null;throw error});
     return loading;
   };
   function maybeLoad(){
