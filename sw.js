@@ -1,5 +1,5 @@
 // Kotoba v200 (teste): carregamento mais leve e cache de recursos estáticos.
-const CACHE = "kotoba-offline-v200-test";
+const CACHE = "kotoba-offline-v201-main-20261117";
 const CORE = [
   "./index.html", "./pratica.html", "./layout-compartilhado.css",
   "./kanji-dados.js", "./tracos.js",
@@ -71,8 +71,19 @@ self.addEventListener("fetch", event => {
       return response;
     }
 
-    // Recursos estáticos: responder do cache imediatamente, sem aguardar rede.
-    const cached = await cache.match(request, {ignoreSearch: true});
+    // Arquivos do dicionario: rede primeiro para nao servir versoes antigas.
+    const isDictionaryScript = /\\/palavras(?:-extras|-cotidiano|-v|\\.)/.test(url.pathname);
+    if (isDictionaryScript) {
+      try {
+        const response = await fetch(new Request(request, {cache: "no-store"}));
+        if (response.ok) {
+          event.waitUntil(cache.put(request, response.clone()));
+          return response;
+        }
+      } catch (_) {}
+      return await cache.match(request) || Response.error();
+    }
+    const cached = await cache.match(request);
     if (cached) return cached;
     try {
       const response = await fetch(request);
