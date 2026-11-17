@@ -18,3 +18,8 @@ for pat in ['const seed=', 'const expandedSeed=', 'let words;', 'function render
 print('\nINLINE SCRIPT SIZES')
 for i,m in enumerate(re.finditer(r'<script[^>]*>(.*?)</script>',s,re.I|re.S)):
  body=m.group(1); print(i,len(body),body[:130].replace('\\n',' '))
+
+print('RENDER_FULL',s[s.find('function render('):s.find('function render(')+4500].replace('\\n',' '))
+print('INIT_WORDS',s[61800:65000].replace('\\n',' '))
+for i,m in enumerate(re.finditer(r'<script[^>]*>(.*?)</script>',s,re.I|re.S)):
+ if i>=4: print('ADDITION',i,'START',m.group(1)[:260].replace('\\n',' '),'END',m.group(1)[-240:].replace('\\n',' '))
