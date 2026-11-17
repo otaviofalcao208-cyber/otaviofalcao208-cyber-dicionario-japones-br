@@ -26,7 +26,9 @@ async def main():
     more=await page.locator("#entries article.entry").count()
     assert 80<more<=160,(device,"load more failed",more)
     # O campo de busca deve reduzir os resultados visíveis.
-    if not await page.locator("#search").is_visible():\n     await page.locator("#searchToggle").click(timeout=15000)\n    await page.locator("#search").fill("こんにちは",timeout=15000)
+    if not await page.locator("#search").is_visible():
+     await page.locator("#searchToggle").click(timeout=15000)
+    await page.locator("#search").fill("こんにちは",timeout=15000)
     await page.wait_for_timeout(500)
     filtered=await page.locator("#entries article.entry").count()
     resultcount=await page.locator("#resultcount").inner_text()
