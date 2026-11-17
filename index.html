@@ -1012,4 +1012,39 @@ for(const w of additions){const key=w.jp.normalize("NFKC")+"|"+w.kana.normalize(
 if(count){try{localStorage.setItem("kotoba_words_v7",JSON.stringify(stored));if(typeof render==="function")render();}catch(e){console.warn("Kotoba v172: erro ao salvar",e);}}
 })();
 </script>
+
+<script>
+/* v174: revisão geral não destrutiva dos níveis JLPT.
+   Correspondências exatas apenas; não altera níveis preenchidos nem verbetes pessoais. */
+(async function kotobaRevisaoGeralJLPTV174(){
+ try{
+  const response=await fetch("./jlpt-niveis-v111.json",{cache:"no-store"});
+  if(!response.ok)throw new Error("Catálogo JLPT indisponível");
+  const catalog=await response.json(),lookup=new Map(),conflicts=new Set();
+  for(const level of ["N5","N4","N3","N2","N1"]){
+   for(const pair of catalog[level]||[]){
+    const key=String(pair[0]||"").normalize("NFKC")+"|"+String(pair[1]||"").normalize("NFKC");
+    if(lookup.has(key)&&lookup.get(key)!==level)conflicts.add(key);
+    else if(!lookup.has(key))lookup.set(key,level);
+   }
+  }
+  let reviewed=0,updated=0,unmatched=0,skipped=0;
+  for(const word of words){
+   const id=String(word.id||"");
+   if(!/^(?:kotoba|jmdict)/.test(id)){skipped++;continue;}
+   if(word.level&&word.level!=="Sem nível"){skipped++;continue;}
+   reviewed++;
+   const key=String(word.jp||"").normalize("NFKC")+"|"+String(word.kana||"").normalize("NFKC");
+   const level=conflicts.has(key)?null:lookup.get(key);
+   if(!level){unmatched++;continue;}
+   word.level=level;
+   word.jlptEstimated=false;
+   word.jlptSource="jlpt-niveis-v111:correspondencia-exata";
+   updated++;
+  }
+  if(updated){localStorage.setItem("kotoba_words_v7",JSON.stringify(words));if(typeof render==="function")render();}
+  console.info("Kotoba JLPT v174", {reviewed,updated,unmatched,skipped,conflicts:conflicts.size});
+ }catch(error){console.warn("Kotoba JLPT v174: revisão não aplicada",error)}
+})();
+</script>
 </body></html>
