@@ -1,0 +1,20 @@
+name: Kotoba v200 - testes isolados
+on:
+  push:
+    branches:
+      - teste/kotoba-v200-desempenho
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  testes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verificar JavaScript do service worker
+        run: node --check sw.js
+      - name: Executar testes automatizados
+        run: node tests/sw.test.cjs
