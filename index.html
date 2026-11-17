@@ -1082,7 +1082,7 @@ function setTheme(t){document.documentElement.dataset.theme=t;localStorage.setIt
     loading=new Promise(function(resolve,reject){
       const script=document.createElement("script");
       script.src="./palavras-extras-v200.js?v=200";
-      script.onload=function(){const extra=document.createElement("script");extra.src="./palavras-cotidiano-v203.js?v=203";extra.onload=function(){window.kotobaWordsLoadedV200=true;resolve(true)};extra.onerror=function(){loading=null;reject(new Error("Falha ao carregar as 100 palavras do cotidiano"))};document.body.appendChild(extra)};
+      script.onload=function(){const extra=document.createElement("script");extra.src="./palavras-cotidiano-v203.js?v=203";extra.onload=function(){const next=document.createElement("script");next.src="./palavras-cotidiano-v205.js?v=205";next.onload=function(){window.kotobaWordsLoadedV200=true;resolve(true)};next.onerror=function(){loading=null;reject(new Error("Falha ao carregar as 100 novas palavras v205"))};document.body.appendChild(next)};extra.onerror=function(){loading=null;reject(new Error("Falha ao carregar as 100 palavras do cotidiano"))};document.body.appendChild(extra)};
       script.onerror=function(){loading=null;reject(new Error("Falha ao carregar palavras extras"))};
       document.body.appendChild(script);
     });
