@@ -886,40 +886,40 @@ function kotobaRepairEntries(){
  if(changed){try{localStorage.setItem("kotoba_words_v7",JSON.stringify(words))}catch(e){console.warn("Erro ao salvar leituras",e)}}
  return changed;
 }
+/* v187: alinhamento por blocos, preservando katakana e pontuação.
+   Se uma leitura não puder ser alinhada com segurança, mostra o texto sem ruby,
+   em vez de colocar furigana incorreto. */
 function kotobaFurigana(text, reading){
- const original=String(text||""), kana=String(reading||"").trim();
- if(!kana||!/[\u3400-\u9fff々]/u.test(original))return escapeHtml(original);
- const norm=s=>String(s).replace(/[\u30a1-\u30f6]/g,ch=>String.fromCharCode(ch.charCodeAt(0)-96)).replace(/\s+/g,"");
- const pieces=original.match(/[\u3400-\u9fff々]+|[^\u3400-\u9fff々]+/gu)||[];
- let at=0, html="", hasRuby=false;
- for(let i=0;i<pieces.length;i++){
-  const part=pieces[i];
-  if(!/[\u3400-\u9fff々]/u.test(part)){
-   const plain=norm(part).replace(/[^\u3040-\u309fー]/g,"");
-   if(plain){
-    if(norm(kana.slice(at,at+plain.length))!==plain)return escapeHtml(original);
-    at+=plain.length;
+ const original=String(text||""), raw=String(reading||"").trim();
+ if(!raw||!/[\u3400-\u9fff々]/u.test(original))return escapeHtml(original);
+ const toHira=s=>String(s).replace(/[\u30a1-\u30f6]/g,ch=>String.fromCharCode(ch.charCodeAt(0)-96));
+ const onlyKana=s=>toHira(s).replace(/[^\u3040-\u309fー]/g,"");
+ const target=onlyKana(raw);
+ const tokens=original.match(/[\u3400-\u9fff々]+|[\u3040-\u30ffー]+|[^\u3400-\u9fff々\u3040-\u30ffー]+/gu)||[];
+ const memo=new Map();
+ function solve(i,pos){
+  const key=i+"|"+pos;if(memo.has(key))return memo.get(key);
+  if(i===tokens.length)return pos===target.length?[]:null;
+  const token=tokens[i],kanji=/^[\u3400-\u9fff々]+$/u.test(token);
+  let result=null;
+  if(!kanji){
+   const fixed=onlyKana(token);
+   if(target.startsWith(fixed,pos)){
+    const tail=solve(i+1,pos+fixed.length);
+    if(tail)result=[{token,reading:null},...tail];
    }
-   html+=escapeHtml(part);continue;
+  }else{
+   const min=pos+1,max=Math.min(target.length,pos+Math.max(12,token.length*8));
+   for(let j=min;j<=max;j++){
+    const tail=solve(i+1,j);
+    if(tail){result=[{token,reading:target.slice(pos,j)},...tail];break}
+   }
   }
-  const following=pieces[i+1]||"";
-  const anchor=norm(following).match(/^[\u3040-\u309fー]+/u)?.[0]||"";
-  const rest=norm(kana.slice(at));
-  let end;
-  if(anchor){end=rest.indexOf(anchor);if(end<1)return escapeHtml(original)}
-  else if(i===pieces.length-1){end=rest.length}
-  else{
-   const next=pieces.slice(i+1).find(p=>/[\u3040-\u309fー]/u.test(norm(p)));
-   const match=next&&norm(next).match(/[\u3040-\u309fー]+/u);
-   end=match?rest.indexOf(match[0]):-1;
-   if(end<1)return escapeHtml(original);
-  }
-  const ruby=rest.slice(0,end);if(!ruby)return escapeHtml(original);
-  html+='<ruby>'+escapeHtml(part)+'<rt>'+escapeHtml(ruby)+'</rt></ruby>';
-  hasRuby=true;at+=end;
+  memo.set(key,result);return result;
  }
- if(norm(kana.slice(at)).replace(/[^\u3040-\u309fー]/g,""))return escapeHtml(original);
- return hasRuby?html:escapeHtml(original);
+ const aligned=solve(0,0);
+ if(!aligned)return escapeHtml(original);
+ return aligned.map(p=>p.reading?'<ruby>'+escapeHtml(p.token)+'<rt>'+escapeHtml(p.reading)+'</rt></ruby>':escapeHtml(p.token)).join("");
 }
 function kotobaCapitalizeRomaji(value){return String(value||'').replace(/\p{L}/u,letter=>letter.toUpperCase());}
 function kotobaCapitalizeTranslations(value){
