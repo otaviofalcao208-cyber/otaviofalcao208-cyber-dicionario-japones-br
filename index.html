@@ -1020,10 +1020,13 @@ if(count){try{localStorage.setItem("kotoba_words_v7",JSON.stringify(stored));if(
  try{
   const response=await fetch("./jlpt-niveis-v111.json",{cache:"no-store"});
   if(!response.ok)throw new Error("Catálogo JLPT indisponível");
-  const catalog=await response.json(),lookup=new Map(),conflicts=new Set();
+  const catalog=await response.json(),lookup=new Map(),conflicts=new Set(),bySpelling=new Map(),spellingConflicts=new Set();
   for(const level of ["N5","N4","N3","N2","N1"]){
    for(const pair of catalog[level]||[]){
     const key=String(pair[0]||"").normalize("NFKC")+"|"+String(pair[1]||"").normalize("NFKC");
+    const spelling=String(pair[0]||"").normalize("NFKC");
+    if(bySpelling.has(spelling)&&bySpelling.get(spelling)!==level)spellingConflicts.add(spelling);
+    else if(!bySpelling.has(spelling))bySpelling.set(spelling,level);
     if(lookup.has(key)&&lookup.get(key)!==level)conflicts.add(key);
     else if(!lookup.has(key))lookup.set(key,level);
    }
@@ -1035,11 +1038,13 @@ if(count){try{localStorage.setItem("kotoba_words_v7",JSON.stringify(stored));if(
    if(word.level&&word.level!=="Sem nível"){skipped++;continue;}
    reviewed++;
    const key=String(word.jp||"").normalize("NFKC")+"|"+String(word.kana||"").normalize("NFKC");
-   const level=conflicts.has(key)?null:lookup.get(key);
+   const spelling=String(word.jp||"").normalize("NFKC");
+   const exact=conflicts.has(key)?null:lookup.get(key);
+   const level=exact||(!spellingConflicts.has(spelling)?bySpelling.get(spelling):null);
    if(!level){unmatched++;continue;}
    word.level=level;
    word.jlptEstimated=false;
-   word.jlptSource="jlpt-niveis-v111:correspondencia-exata";
+   word.jlptSource=exact?"jlpt-niveis-v111:correspondencia-exata":"jlpt-niveis-v111:grafia-univoca";
    updated++;
   }
   if(updated){localStorage.setItem("kotoba_words_v7",JSON.stringify(words));if(typeof render==="function")render();}
