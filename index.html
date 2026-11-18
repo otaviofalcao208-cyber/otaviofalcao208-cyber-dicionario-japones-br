@@ -1116,7 +1116,7 @@ function setTheme(t){document.documentElement.dataset.theme=t;localStorage.setIt
       return promise.then(function(){
         return new Promise(function(resolve,reject){
           const script=document.createElement("script");
-          script.src="./"+file+"?v=3377-20261118-v215";
+          script.src="./"+file+"?v=3378-20261118-v216";
           script.onload=resolve;
           script.onerror=function(){reject(new Error("Falha ao carregar "+file))};
           document.body.appendChild(script);
