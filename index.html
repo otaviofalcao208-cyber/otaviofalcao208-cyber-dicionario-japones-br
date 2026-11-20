@@ -37,7 +37,8 @@ article .actions:has(button[data-action="speak"]):has(button[data-action="edit"]
   #dictionary .kotoba-subnav-buttons {
     display: grid;
     grid-template-columns: minmax(max-content, 1fr) repeat(3, minmax(44px, 1fr));
-    width: 100%;
+    width: 94%;
+    align-self: center;
     gap: 8px;
   }
 
@@ -48,8 +49,8 @@ article .actions:has(button[data-action="speak"]):has(button[data-action="edit"]
     justify-content: center;
     width: 100%;
     min-width: 44px;
-    min-height: 46px;
-    padding: 6px 8px;
+    min-height: 44px;
+    padding: 4px 7px;
     white-space: nowrap;
   }
 
@@ -58,6 +59,7 @@ article .actions:has(button[data-action="speak"]):has(button[data-action="edit"]
   }
 
   #dictionary .dictionary-subnav > .kotoba-total-pill {
+    order: -1;
     position: static;
     transform: none;
     flex-direction: row;
