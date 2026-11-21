@@ -72,7 +72,7 @@ self.addEventListener("fetch", event => {
     }
 
     // Arquivos do dicionario: rede primeiro para nao servir versoes antigas.
-    const isDictionaryScript = /\\/palavras(?:-extras|-cotidiano|-v|\\.)/.test(url.pathname);
+    const isDictionaryScript = /\/palavras(?:-extras|-cotidiano|-v|\.)/.test(url.pathname);
     if (isDictionaryScript) {
       try {
         const response = await fetch(new Request(request, {cache: "no-store"}));
