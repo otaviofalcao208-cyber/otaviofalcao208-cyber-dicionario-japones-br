@@ -1378,31 +1378,44 @@ function setTheme(t){document.documentElement.dataset.theme=t;localStorage.setIt
     }
   }
 
-  document.addEventListener('pointerdown', event => {
+  let mouseTimer;
+  function cancelPress() {
+    clearTimeout(mouseTimer);
     press = null;
+  }
+  function finishPress() {
+    const element = press?.element;
+    cancelPress();
+    if (element?.isConnected) copyWord(element);
+  }
+
+  document.addEventListener('pointerdown', event => {
+    cancelPress();
     const element = event.target.closest(selector);
     if (event.isPrimary && event.button === 0 && element) {
       press = { element, id: event.pointerId, x: event.clientX, y: event.clientY, start: event.timeStamp };
+      if (event.pointerType === 'mouse') mouseTimer = setTimeout(finishPress, 500);
     }
   });
   function moved(event) {
     return Math.hypot(event.clientX - press.x, event.clientY - press.y) > 10;
   }
   document.addEventListener('pointermove', event => {
-    if (press?.id === event.pointerId && moved(event)) press = null;
+    if (press?.id === event.pointerId && moved(event)) cancelPress();
   });
   document.addEventListener('pointerup', event => {
     if (press?.id !== event.pointerId) return;
-    if (!moved(event) && event.timeStamp - press.start >= 500 && press.element.isConnected) {
-      copyWord(press.element);
+    if (!moved(event) && event.timeStamp - press.start >= 500) {
+      finishPress();
+    } else {
+      cancelPress();
     }
-    press = null;
   });
   document.addEventListener('contextmenu', event => {
     if (press && press.element.contains(event.target)) event.preventDefault();
   });
-  document.addEventListener('pointercancel', () => { press = null; });
-  window.addEventListener('blur', () => { press = null; });
+  document.addEventListener('pointercancel', cancelPress);
+  window.addEventListener('blur', cancelPress);
 })();
 </script>
 </body></html>
