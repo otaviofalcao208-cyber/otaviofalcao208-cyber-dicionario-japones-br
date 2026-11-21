@@ -72,6 +72,27 @@ article .actions:has(button[data-action="speak"]):has(button[data-action="edit"]
   #dictionary .kotoba-total-pill strong { font-size: 18px !important; }
   #dictionary .kotoba-total-pill small { margin-top: 0 !important; }
 }
+
+.entry > h3, .entry > .reading.kotoba-word-furigana {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+#word-copy-status {
+  position: fixed;
+  bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  max-width: 90vw;
+  width: max-content;
+  overflow-wrap: anywhere;
+  pointer-events: none;
+  color: white;
+  background: #263447;
+  border-radius: 10px;
+}
+#word-copy-status:not(:empty) { padding: 8px 14px; }
 </style><link rel="stylesheet" href="./layout-compartilhado.css?v=101"><style>
 /* Kotoba — visual renovado: hierarquia clara, cartões e busca responsiva */
 :root{--bg:#f6f8fc;--card:#ffffff;--ink:#19263b;--muted:#617188;--line:#e4eaf3;--primary:#315bd6;--soft:#edf2ff;--shadow:0 10px 30px rgba(26,49,90,.055)}
@@ -1312,6 +1333,76 @@ function setTheme(t){document.documentElement.dataset.theme=t;localStorage.setIt
   if(document.readyState==="loading"){
     document.addEventListener("DOMContentLoaded",maybeLoad,{once:true});
   }else{setTimeout(maybeLoad,0)}
+})();
+</script>
+<div id="word-copy-status" role="status" aria-live="polite"></div>
+<script>
+(() => {
+  const selector = '.entry > h3, .entry > .reading.kotoba-word-furigana';
+  const status = document.getElementById('word-copy-status');
+  let press;
+  let hideTimer;
+
+  function notify(message) {
+    clearTimeout(hideTimer);
+    status.textContent = message;
+    hideTimer = setTimeout(() => { status.textContent = ''; }, 1800);
+  }
+
+  async function copyWord(element) {
+    const copy = element.cloneNode(true);
+    copy.querySelectorAll('rt, rp, .kotoba-romaji').forEach(node => node.remove());
+    const word = copy.textContent.trim();
+    if (!word) return;
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(word);
+      } else {
+        const field = document.createElement('textarea');
+        const previousFocus = document.activeElement;
+        field.value = word;
+        field.readOnly = true;
+        field.style.cssText = 'position:fixed;top:0;left:-9999px';
+        document.body.append(field);
+        try {
+          field.select();
+          if (!document.execCommand('copy')) throw new Error();
+        } finally {
+          field.remove();
+          previousFocus?.focus({ preventScroll: true });
+        }
+      }
+      notify('Copiado: ' + word);
+    } catch {
+      notify('Não foi possível copiar a palavra.');
+    }
+  }
+
+  document.addEventListener('pointerdown', event => {
+    press = null;
+    const element = event.target.closest(selector);
+    if (event.isPrimary && event.button === 0 && element) {
+      press = { element, id: event.pointerId, x: event.clientX, y: event.clientY, start: event.timeStamp };
+    }
+  });
+  function moved(event) {
+    return Math.hypot(event.clientX - press.x, event.clientY - press.y) > 10;
+  }
+  document.addEventListener('pointermove', event => {
+    if (press?.id === event.pointerId && moved(event)) press = null;
+  });
+  document.addEventListener('pointerup', event => {
+    if (press?.id !== event.pointerId) return;
+    if (!moved(event) && event.timeStamp - press.start >= 500 && press.element.isConnected) {
+      copyWord(press.element);
+    }
+    press = null;
+  });
+  document.addEventListener('contextmenu', event => {
+    if (press && press.element.contains(event.target)) event.preventDefault();
+  });
+  document.addEventListener('pointercancel', () => { press = null; });
+  window.addEventListener('blur', () => { press = null; });
 })();
 </script>
 </body></html>
